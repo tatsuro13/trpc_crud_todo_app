@@ -2,10 +2,15 @@ import { trpc } from "../utils/trpc";
 
 const Test = () => {
 
-    const helloQuery = trpc.hello.useQuery();
-    console.log(helloQuery);
+    const test = trpc.helloName.useQuery({name: 'Taro', age: 20});
+
+    // const helloQuery = trpc.hello.useQuery();
+    // console.log(helloQuery);
   return (
-      <div>{ helloQuery.data }</div>
+      <>
+          <p>{test.data?.greeting}</p>
+          <p>{test.data?.age}</p>
+      </>
   )
 }
 
