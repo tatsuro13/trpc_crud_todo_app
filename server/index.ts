@@ -1,10 +1,12 @@
 import express from 'express';
 import { initTRPC } from '@trpc/server';
 import * as trcpExpress from '@trpc/server/adapters/express';
-
+import cors from 'cors';
 
 const app = express();
 const PORT = 3000;
+
+app.use(cors());
 
 const t = initTRPC.create();
 
