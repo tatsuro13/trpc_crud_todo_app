@@ -24,19 +24,27 @@ const appRouter = t.router({
     hello: t.procedure.query(() => {
         return 'Hello World!';
     }),
-    helloName: t.procedure
-        .input(z.object({ name: z.string(), age: z.number() }))
+    helloTitle: t.procedure
+        .input(z.object({ title: z.string(), age: z.number() }))
         .query(({ input }) => {
             return {
-                greeting: `Hello ${input.name}!`,
+                greeting: `Hello ${input.title}!`,
                 age: input.age,
             };
         }),
     todos: t.procedure.query(async () => {
     const todos = await prisma.todo.findMany();
     return todos;
-  }),
-});
+    }),
+    addTodo: t.procedure
+        .input(z.object({ title: z.string() }))
+        .mutation(async ({ input }) => {
+            const todo = await prisma.todo.create({
+                data: input,
+            });
+            return todo;
+        }),
+})
 
 app.get('/', (_req, res) => res.send('Hello World!'));
 
