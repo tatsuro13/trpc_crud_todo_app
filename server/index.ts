@@ -1,15 +1,24 @@
 import express from 'express';
-import { initTRPC } from '@trpc/server';
-import * as trcpExpress from '@trpc/server/adapters/express';
+import { inferAsyncReturnType, initTRPC } from '@trpc/server';
+import * as trpcExpress from '@trpc/server/adapters/express';
 import cors from 'cors';
 import { z } from 'zod';
+import { PrismaClient } from '@prisma/client';
+
 
 const app = express();
 const PORT = 3000;
 
 app.use(cors());
 
-const t = initTRPC.create();
+const prisma = new PrismaClient();
+
+const createContext = (opts: trpcExpress.CreateExpressContextOptions) => {
+  return { prisma };
+};
+
+//type Context = inferAsyncReturnType;
+const t = initTRPC.context().create();
 
 const appRouter = t.router({
     hello: t.procedure.query(() => {
@@ -22,12 +31,16 @@ const appRouter = t.router({
                 greeting: `Hello ${input.name}!`,
                 age: input.age,
             };
-    }),
+        }),
+    todos: t.procedure.query(async () => {
+    const todos = await prisma.todo.findMany();
+    return todos;
+  }),
 });
 
 app.get('/', (_req, res) => res.send('Hello World!'));
 
-app.use('/trpc',trcpExpress.createExpressMiddleware({
+app.use('/trpc',trpcExpress.createExpressMiddleware({
     router: appRouter,
 })
 );
